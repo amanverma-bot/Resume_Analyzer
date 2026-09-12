@@ -1,69 +1,121 @@
-# Smart AI Resume Analyzer - BCA 3rd Year Project (2026)
+# 📄 Resume_Analyzer — Smart AI Resume Analyzer (Dark Neon)
 
-**ATS Resume Scanner for Campus Placements** — Flask + SQLite + NLP (TF-IDF) — No API key, runs offline.
+<p align="center">
+  <img src="https://img.shields.io/badge/BCA-3rd_Year-6366f1?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Python-3.11-06b6d4?style=for-the-badge&logo=python" />
+  <img src="https://img.shields.io/badge/Flask-3.1黑-000000?style=for-the-badge&logo=flask" />
+  <img src="https://img.shields.io/badge/Live-Demo-10b981?style=for-the-badge" />
+  <a href="https://github.com/amanverma-bot/Resume_Analyzer"><img src="https://img.shields.io/github/stars/amanverma-bot/Resume_Analyzer?style=for-the-badge" /></a>
+</p>
 
-### 🎯 Problem
-70% of resumes are rejected by ATS before reaching HR. Students don't know *why*. This project gives an instant score (0-100) + exactly what to fix.
+<p align="center">
+  <b>ATS Resume Scanner for Campus Placements</b> — <b>Dark Neon Glass UI</b> • Flask + SQLite + NLP (TF-IDF/BERT) • No API key, offline
+  <br/>
+  <a href="https://78c337b30ec12a.lhr.life"><b>🌐 Live Demo</b></a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-viva">Viva</a>
+</p>
 
-### ✨ Features (for viva - easy to explain)
-1. **Auth** - Register/Login (SQLite), Admin panel
-2. **Parser** - PDF/DOCX/TXT → text (PyPDF2/python-docx)
-3. **Scoring Engine**:
-   - Keyword Match (JD frequency weighted) - 40%
-   - TF-IDF Cosine Semantic - 30%
-   - Skill Coverage (70+ skills DB) - 20%
-   - ATS Structure (sections, email, bullets) - 10%
-4. **Dashboard** - History, Avg score, Recent analyses
-5. **Result Page** - Verdict, Skills Gap, Missing Keywords, Fixes
-6. **API**: `POST /api/analyze` → JSON
+> **70% resumes rejected by ATS before HR sees them.** This gives instant **ATS score 0-100** + exactly what to fix — like Jobscan, but free & offline for BCA.
+
+---
+
+### ✨ Features (viva-easy, explain 1-by-1)
+
+| # | Feature | What it does | Viva line |
+|---|---------|--------------|-----------|
+| 1 | **🔐 Auth** | Register/Login (SQLite), Admin `admin/admin123` | `app.py:login_required` |
+| 2 | **📄 Parser** | PDF/DOCX/TXT → text (PyPDF2) | `analyser.py:read_pdf` |
+| 3 | **🎯 Scoring** | 40% Keyword (freq-weighted) + 30% Semantic (TF-IDF/BERT) + 20% Skills (70+ DB) + 10% ATS | `overall_score()` |
+| 4 | **📊 Dashboard** | History, Avg score, donut + bars | `templates/result.html` |
+| 5 | **🤖 AI Enhance** | Rewrites bullets STAR + metrics, injects missing | `ai_enhance_cv()` |
+| 6 | **✨ AI Builder** | Create CV from form → ATS-safe | `ai_build_cv()` |
+| 7 | **✉️ Cover Letter** | Tailored letter to JD | `ai_cover_letter()` |
+| 8 | **🎤 Mock Interview** | 7 Qs + 0-10 feedback (STAR) | `generate_mock_questions()` |
+| 9 | **🔗 JD Import** | Paste LinkedIn URL → auto-fetch | `fetch_jd_from_url()` |
+| 10 | **📄 PDF Export** | Report + Enhanced CV (ReportLab) | `/download/report/<id>` |
+| 11 | **🌙 Dark Neon UI** | Glass, glow, typing animation, toggle | `static/style.css` |
+
+**APIs:** `POST /api/analyze`, `/api/enhance`, `/api/cover-letter`, `/api/mock-interview` → JSON
+
+---
 
 ### 🛠️ Tech Stack
-- Backend: Python 3, Flask
-- DB: SQLite (`database/app.db`)
-- NLP: scikit-learn TfidfVectorizer + fallback Jaccard
-- Frontend: HTML/CSS (no React needed - viva friendly)
+
+- **Backend:** Python 3.11, Flask 3.1, SQLite (`database/app.db`)
+- **NLP:** scikit-learn TF-IDF + optional `sentence-transformers` BERT (`all-MiniLM-L6-v2`, fallback Jaccard)
+- **Parsing:** PyPDF2, python-docx
+- **PDF:** ReportLab
+- **Frontend:** Jinja2 + Inter + CSS glass/neon (no React — viva friendly)
+- **Deploy:** Docker, Render, `localhost.run` tunnel
+
+---
 
 ### 📁 Structure
+
 ```
-BCA_Resume_Analyzer/
-  app.py              # Flask app (login, dashboard, analyze)
-  analyser.py         # Core logic (scoring, ATS checks) - explain 1-by-1 in viva
-  web_stdlib.py       # Zero-dep HTTP server alternative
+Resume_Analyzer/
+  app.py              # Flask (auth, dashboard, analyze, builder, cover, mock)
+  analyser.py         # Core: scoring, ATS, AI builders — explain line-by-line
+  templates/          # index (neon hero), analyze, result (donut), enhance, builder, cover, mock
+  static/style.css    # Dark neon glass theme
+  database/schema.sql
   requirements.txt
-  templates/          # index, login, dashboard, analyze, result
-  static/style.css
-  database/app.db     # auto-created
-  uploads/
+  SYNOPSIS.md / PROJECT_REPORT.md / PPT_OUTLINE.md / VIVA_QUESTIONS.md
   sample_data/
-  docs/               # Synopsis, SRS, Report (see below)
 ```
 
-### 🚀 How to Run (College PC / Termux)
+---
+
+### 🚀 Quick Start (College PC / Termux)
+
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/amanverma-bot/Resume_Analyzer.git
+cd Resume_Analyzer
+pip install -r requirements.txt  # flask PyPDF2 python-docx scikit-learn reportlab
 python app.py
 # open http://127.0.0.1:5000
-# login: admin / admin123   or Register
+# login: admin / admin123  or Register
 ```
-*No deps?* `python web_stdlib.py` → http://127.0.0.1:8000
+No deps? `python web_stdlib.py` → http://127.0.0.1:8000
 
-### 📊 Demo Data
-In `analyser.py`: DEMO_CV + DEMO_JD (already filled in forms)
-CLI: `python analyser.py --demo`
+**Public tunnel (Termux):**
+```bash
+nohup ssh -n -o StrictHostKeyChecking=no -R 80:localhost:5000 nokey@localhost.run > tunnel.log 2>&1 &
+cat tunnel.log | grep https
+```
 
-### 📄 Documentation for Submission
-- `SYNOPSIS.md` - 1-page synopsis (copy to Word)
-- `PROJECT_REPORT.md` - Full report outline (Abstract, Objectives, DFD, ER, Modules)
-- `PPT_OUTLINE.md` - 12 slides
-- `VIVA_QUESTIONS.md` - 50 Q&A
-- `database/schema.sql`
+---
+
+### 📊 Demo
+
+- **Demo CV/JD:** in `analyser.py:DEMO_CV` (pre-filled in forms)
+- **CLI:** `python analyser.py --demo` → pretty report
+- **Live:** https://78c337b30ec12a.lhr.life
+
+---
+
+### 📄 Submission Ready
+
+- `SYNOPSIS.md` — 1-page synopsis
+- `PROJECT_REPORT.md` — 13 chapters (Abstract, DFD, ER)
+- `PPT_OUTLINE.md` — 12 slides
+- `VIVA_QUESTIONS.md` — 50 Q&A
+- `database/schema.sql` — ER
+
+---
 
 ### 🔑 Viva Tips
-- Explain formula: `Overall = 0.4*keyword + 0.3*semantic + 0.2*skill + 0.1*ATS`
-- ATS checks: email, sections, bullets, action verbs, length
-- Why TF-IDF? Lightweight, no LLM cost, explainable
-- Future: Add BERT embeddings, JD auto-fetch from LinkedIn
+
+- Formula: `Overall = 0.4*keyword + 0.3*semantic + 0.2*skill + 0.1*ATS`
+- ATS: email, sections, bullets, verbs, length, metrics
+- Why TF-IDF? Light, explainable, offline. BERT optional: `pip install sentence-transformers torch`
+- Show code: `analyser.py:289` (BERT), `app.py:264` (PDF)
+
+---
 
 ### 👨‍🎓 Submitted by
-BCA 3rd Year - [Your Name] - [Roll No] - [College Name] 2026
-Guide: [Guide Name]
+
+**BCA 3rd Year — [Your Name] — [Roll No] — [College Name] 2026**  
+Guide: [Guide Name]  
+GitHub: [@amanverma-bot/Resume_Analyzer](https://github.com/amanverma-bot/Resume_Analyzer) • Live: https://78c337b30ec12a.lhr.life
+
+<p align="center">Made with ❤️ for placements — Dark Neon Edition 🌙</p>
