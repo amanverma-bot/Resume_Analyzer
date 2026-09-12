@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:860px;margin:0 auto">
+<div class="score-hero">
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+    <div class="donut" style="--deg: {{ (avg/10*360) }}deg; --color: {{ '#10b981' if avg>=8 else '#f59e0b' if avg>=6 else '#ef4444' }}">
+      <div class="donut-inner">
+        <div style="font-size:12px;color:#94a3b8">Avg Score</div>
+        <div class="big-score" style="font-size:28px">{{ avg }}<small>/10</small></div>
+        <span class="badge" style="background:{{ '#10b981' if avg>=8 else '#f59e0b' if avg>=6 else '#ef4444' }}">{{ level }}</span>
+      </div>
+    </div>
+    <div>
+      <h2 style="margin:0;color:#fff">📊 Mock Interview Result</h2>
+      <p class="muted">Avg {{ avg }}/10 across {{ results|length }} Qs • {{ level }}</p>
+      <small style="color:#94a3b8">Score: 8+ Excellent • 6-7.9 Good • 4-5.9 Moderate • <4 Weak</small>
+    </div>
+  </div>
+</div>
+
+{% for r in results %}
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<b style="color:#fff">{{ loop.index }}. {{ r.q.q }}</b>
+<span class="badge" style="background:{{ '#10b981' if r.ev.score>=8 else '#f59e0b' if r.ev.score>=6 else '#ef4444' }}">{{ r.ev.score }}/10 • {{ r.ev.level }}</span>
+</div>
+<p style="margin:6px 0;color:#94a3b8;font-size:13px">Type: {{ r.q.type }} • Expected keywords: {{ r.q.keywords|join(', ') }}</p>
+<div style="background:rgba(2,6,23,.5);border:1px solid rgba(255,255,255,.06);border-radius:10px;padding:12px;margin:8px 0">
+<div style="font-size:13px;color:#64748b">Your answer:</div>
+<div style="color:#e2e8f0;white-space:pre-wrap">{{ r.ans or '(empty — 0/10)' }}</div>
+</div>
+<div style="background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.15);border-radius:10px;padding:10px">
+<b style="color:#6ee7b7">💡 Feedback ({{ r.ev.matched_kw }}/{{ r.ev.total_kw }} keywords):</b> <span style="color:#cbd5e1">{{ r.ev.feedback }}</span><br>
+<small style="color:#a5b4fc">Tip: {{ r.q.tip }}</small>
+</div>
+</div>
+{% endfor %}
+
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<a class="btn-primary" href="/mock-interview">🔄 New Mock Interview</a>
+<a class="btn-ghost" href="/cover-letter">✉️ Generate Cover Letter</a>
+<a class="btn-ghost" href="/analyze">🔍 Analyze Resume</a>
+</div>
+</div>
+{% endblock %}

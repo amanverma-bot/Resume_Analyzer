@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:860px;margin:0 auto">
+<div class="score-hero">
+  <h2 style="margin:0;color:#fff">✉️ Your AI Cover Letter — Ready to Send</h2>
+  <p class="muted">Tailored to JD • ATS-friendly • Copy or download PDF</p>
+</div>
+
+<div class="card">
+<pre id="letter" style="background:#020617;border-color:#1e293b;white-space:pre-wrap;line-height:1.7;color:#e2e8f0">{{ letter }}</pre>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+<button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('letter').innerText);this.innerText='✅ Copied!'">📋 Copy Letter</button>
+<button class="btn-ghost" onclick="downloadLetter()">⬇️ Download .txt</button>
+<button class="btn-ghost" onclick="downloadPdf()">📄 Download PDF</button>
+<a class="btn-ghost" href="/cover-letter">↩️ Edit</a>
+<a class="btn-ghost" href="/builder">✨ Build CV</a>
+</div>
+</div>
+
+<div class="card">
+<h3>🔍 What AI did</h3>
+<ul style="font-size:14px;color:#94a3b8">
+<li>Extracted role/company from JD, matched skills from your CV</li>
+<li>Used STAR bullets from CV (top 3) as proof</li>
+<li>Added hiring-manager tone + ATS keywords</li>
+<li>No API key — local rule-based, viva-explainable at <code>analyser.py:ai_cover_letter</code></li>
+</ul>
+</div>
+</div>
+<script>
+function downloadLetter(){
+  const t=document.getElementById('letter').innerText;
+  const b=new Blob([t],{type:'text/plain'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Cover_Letter.txt'; a.click();
+}
+function downloadPdf(){
+  // fallback: print to PDF via browser
+  const w=window.open('','_blank');
+  w.document.write('<pre style="font-family:Inter;padding:24px;white-space:pre-wrap">'+document.getElementById('letter').innerText+'</pre>');
+  w.print();
+}
+</script>
+{% endblock %}

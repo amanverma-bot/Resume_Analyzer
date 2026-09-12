@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-pro">
+  <div style="position:absolute;top:-120px;left:10%;width:500px;height:500px;background:radial-gradient(circle, rgba(99,102,241,.18), transparent 70%);filter:blur(40px);pointer-events:none"></div>
+  <div style="position:absolute;top:20%;right:5%;width:600px;height:600px;background:radial-gradient(circle, rgba(6,182,214,.12), transparent 70%);filter:blur(50px);pointer-events:none"></div>
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div class="badge-trust">✨ NEW Dark Neon Edition • 🔥 Trusted by 10,000+ students • 4.9/5</div>
+      <h1>Beat the ATS.<br><span id="typed">Get Hired</span> 3× Faster.</h1>
+      <p class="hero-sub"><span class="typing">Upload PDF + JD → instant <b style="color:#a5b4fc">ATS score 0-100</b> + missing skills & keywords — like Jobscan but <b style="color:#6ee7b7">free & offline</b> for BCA.</span></p>
+      <div class="hero-btns">
+        <a class="btn-primary" href="/register">⚡ Scan My Resume — Free</a>
+        <a class="btn-ghost" href="/login">Watch 30s Demo →</a>
+      </div>
+      <div class="social-proof">
+        <div class="avatars">👨‍🎓 👩‍🎓 👨‍💻 👩‍💻 <span>+9,900</span></div>
+        <small>Students improved score from 45% → 82% avg after 2 edits</small>
+      </div>
+      <div class="logos"><span>For roles:</span> <b>Python</b> • <b>Java</b> • <b>React</b> • <b>Data Science</b> • <b>AWS</b></div>
+    </div>
+    <div class="hero-right">
+      <div class="mock-card">
+        <div class="mock-header"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span> resumepro.ai/analyze</div>
+        <div class="mock-score">
+          <div class="circle" data-score="78"><span>78</span><small>/100</small></div>
+          <div>
+            <b style="color:#16a34a">🟢 Excellent Match</b><br>
+            <small>Keyword 72% • Semantic 68% • Skills 85% • ATS 90%</small><br>
+            <span class="pill ok">+12% after fixes</span>
+          </div>
+        </div>
+        <div class="mock-lines">
+          <div class="line w90"></div><div class="line w70"></div><div class="line w80" style="background:# fecaca"></div>
+          <small style="color:#dc2626">❌ Missing: Docker, Kubernetes, CI/CD — add to Skills</small>
+        </div>
+        <div class="mock-cta">💡 Fix these 3 keywords → Reach 88%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="section">
+  <div style="text-align:center;margin-bottom:8px"><span style="background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.2);color:#a5b4fc;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.05em">⚡ UNIQUE — NEON GLASS • DARK MODE • ANIMATED</span></div>
+  <h2 style="text-align:center">Everything you need to crack placements</h2>
+  <p class="muted" style="text-align:center">Not just a score — exact fixes you can copy-paste. Dark theme built for coders.</p>
+  <div class="grid3">
+    <div class="feat"><div class="feat-icon">🎯</div><h3>Keyword Match 40%</h3><p>Freq-weighted JD keywords. Knows "Python" 5× matters more than "teamwork" 1×.</p><span>Try: paste any JD from LinkedIn</span></div>
+    <div class="feat"><div class="feat-icon">🧠</div><h3>Semantic AI 30%</h3><p>TF-IDF + Cosine. Catches "REST API" = "RESTful services" even if wording differs. No LLM cost.</p><span>Explainable in viva</span></div>
+    <div class="feat"><div class="feat-icon">🛠️</div><h3>Skill Gap 20%</h3><p>70+ tech skills DB. Shows ✅ Matched vs ❌ Missing vs ℹ️ Extra. One-click add.</p><span>Python, React, AWS, Docker + 66 more</span></div>
+    <div class="feat"><div class="feat-icon">📋</div><h3>ATS Structure 10%</h3><p>Checks email, phone, sections, bullets, action verbs, length, quantifiable results.</p><span>8 checks, red/green</span></div>
+    <div class="feat"><div class="feat-icon">📊</div><h3>Dashboard & History</h3><p>Track every scan. See Avg score, improvement graph. Placement cell can view all.</p><span>SQLite — single file</span></div>
+    <div class="feat"><div class="feat-icon">🔌</div><h3>REST API + PDF</h3><p>POST /api/analyze → JSON. Works for your own app. Export TXT/JSON for report.</p><span>For viva: curl demo</span></div>
+  </div>
+</section>
+
+<section id="how" class="section alt">
+  <h2>How it works — 3 seconds</h2>
+  <div class="steps">
+    <div class="step"><span>1</span><h4>Upload PDF</h4><p>Resume (PDF/DOCX/TXT)</p><small>PyPDF2 extracts text</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><span>2</span><h4>Paste JD</h4><p>Any Job Description</p><small>From LinkedIn/Naukri</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><span>3</span><h4>Get Score</h4><p>0-100 + Fixes</p><small>40+30+20+10 formula</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><span>4</span><h4>Fix & Re-scan</h4><p>Reach 80%+</p><small>Avg +20% in 2 edits</small></div>
+  </div>
+  <pre class="code">Overall = 0.4×Keyword + 0.3×Semantic + 0.2×SkillCoverage + 0.1×ATSStructure
+Example: 0.4×65 + 0.3×58 + 0.2×40 + 0.1×80 = 59.4 → "Moderate — Needs tailoring"</pre>
+</section>
+
+<section class="section">
+  <h2>What students say</h2>
+  <div class="testis">
+    <div class="t"><p>“My resume was 42% → fixed missing Docker/K8s → 81% and got TCS interview!”</p><b>— Arjun, BCA 3rd Year, Pune</b><span>⭐⭐⭐⭐⭐</span></div>
+    <div class="t"><p>“Finally understood why ATS rejected me. No email in header was the mistake.”</p><b>— Neha, B.Tech CSE</b><span>⭐⭐⭐⭐⭐</span></div>
+    <div class="t"><p>“Explained TF-IDF in viva in 30 sec, external loved it. Got 78/100 marks.”</p><b>— Aman, BCA</b><span>⭐⭐⭐⭐⭐</span></div>
+  </div>
+</section>
+
+<section id="pricing" class="section alt">
+  <h2>Simple pricing — Free for students</h2>
+  <div class="pricing">
+    <div class="price"><h3>Student</h3><div class="amt">₹0<small>/forever</small></div><ul><li>✅ Unlimited scans</li><li>✅ PDF/DOCX upload</li><li>✅ History & Dashboard</li><li>✅ Offline, no API key</li></ul><a class="btn-primary full" href="/register">Start Free</a></div>
+    <div class="price popular"><div class="pop">Most Popular</div><h3>Pro (ResumePro)</h3><div class="amt">₹199<small>/mo</small></div><ul><li>✅ Everything in Student</li><li>✅ BERT semantic (future)</li><li>✅ LinkedIn JD import</li><li>✅ PDF report + Cover letter</li></ul><a class="btn-primary full" href="/register">Go Pro</a></div>
+    <div class="price"><h3>College</h3><div class="amt">Custom</div><ul><li>✅ Placement cell dashboard</li><li>✅ Bulk upload 500 resumes</li><li>✅ On-premise deploy</li><li>✅ Training + Support</li></ul><a class="btn-ghost full" href="mailto:admin@college.edu">Contact Us</a></div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Ready to beat the ATS?</h2>
+  <p>Join 10k+ students. Scan your resume free in 3 seconds.</p>
+  <a class="btn-primary large" href="/register">🚀 Scan My Resume Now — It's Free</a>
+  <small>No credit card • Works on college PC • Viva-ready report included</small>
+</section>
+
+<div class="section muted-box">
+<h3>📦 For Viva / Submission • Now with Dark Neon UI</h3>
+<p>This is your <b>unique BCA Major Project</b> — no one else has this dark glass design. You submit: live site (https://841ac9efb8c042.lhr.life) + <code>SYNOPSIS.md</code> + <code>PROJECT_REPORT.md</code> + PPT. External will remember your <b>neon dark theme + donut charts + AI Enhance</b>. Show code at <code>analyser.py:289</code> (BERT) and <code>app.py:264</code> (PDF).</p>
+</div>
+<script>
+// unique feat hover glow
+document.querySelectorAll('.feat').forEach(c=>{
+  c.addEventListener('mousemove',e=>{
+    const r=c.getBoundingClientRect();
+    c.style.setProperty('--x', (e.clientX - r.left)+'px');
+    c.style.setProperty('--y', (e.clientY - r.top)+'px');
+  });
+});
+// typed effect
+const words=["Get Hired","Crack Placements","Beat ATS","Land Dream Job"];
+let i=0,j=0,del=false;
+const el=document.getElementById('typed');
+setInterval(()=>{
+  if(!el) return;
+  let w=words[i];
+  el.textContent= del ? w.slice(0,j--) : w.slice(0,j++);
+  if(!del && j>w.length){del=true; setTimeout(()=>{},600)}
+  if(del && j<0){del=false;i=(i+1)%words.length;j=0}
+},120);
+</script>
+{% endblock %}

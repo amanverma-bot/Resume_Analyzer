@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:900px;margin:0 auto">
+<div class="badge-trust" style="margin-bottom:10px">✨ NEW — AI CV Builder • No template needed</div>
+<h1 style="font-size:36px;font-weight:900;color:#fff;margin:0">AI CV Builder <span style="background:linear-gradient(135deg,#6366f1,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">in 60s</span></h1>
+<p class="muted">Fill details → AI polishes bullets with STAR + metrics + JD keywords → ATS-safe resume ready. No typing from scratch.</p>
+
+<form method="POST" class="card" style="display:flex;flex-direction:column;gap:14px">
+  <div class="row">
+    <input name="name" placeholder="Full Name (e.g., Arjun Sharma)" required value="{{request.form.name or ''}}">
+    <input name="email" placeholder="Email (e.g., arjun@email.com)" required value="{{request.form.email or ''}}">
+  </div>
+  <div class="row">
+    <input name="phone" placeholder="Phone (+91 98...)" value="{{request.form.phone or ''}}">
+    <input name="location" placeholder="Location (Pune, India)" value="{{request.form.location or ''}}">
+  </div>
+  <div class="row">
+    <input name="linkedin" placeholder="LinkedIn (linkedin.com/in/...)" value="{{request.form.linkedin or ''}}">
+    <input name="github" placeholder="GitHub (github.com/...)" value="{{request.form.github or ''}}">
+  </div>
+
+  <label style="font-weight:700;color:#e2e8f0">Target Role / Job Description (paste to tailor AI)</label>
+  <textarea name="jd" placeholder="Paste JD here for AI to tailor summary + skills (optional but boosts score)">{{request.form.jd or ''}}</textarea>
+  <input name="jd_url" placeholder="Or paste LinkedIn URL (https://linkedin.com/jobs/...) — auto-fetch" value="{{request.form.jd_url or ''}}">
+
+  <label style="font-weight:700;color:#e2e8f0">Professional Summary (or let AI generate)</label>
+  <textarea name="summary" rows="3" placeholder="e.g., BCA student passionate about Python... (leave blank for AI)">{{request.form.summary or ''}}</textarea>
+
+  <div class="row">
+    <div>
+      <label style="font-weight:700;color:#e2e8f0">Education</label>
+      <textarea name="education" rows="3" placeholder="BCA, Pune University — 2022-2025, 78%&#10;12th — CBSE 85%">{{request.form.education or 'BCA, [Your College] — 2022-2025'}}</textarea>
+    </div>
+    <div>
+      <label style="font-weight:700;color:#e2e8f0">Skills (comma separated)</label>
+      <textarea name="skills" rows="3" placeholder="Python, Flask, React, SQL, Docker, Git">{{request.form.skills or 'Python, JavaScript, React, Flask, SQL'}}</textarea>
+    </div>
+  </div>
+
+  <label style="font-weight:700;color:#e2e8f0">Experience / Internships (bullets, one per line)</label>
+  <textarea name="experience" rows="4" placeholder="Software Intern, Tech Solutions — Jun 2024 - Dec 2024&#10;- Built REST API with Flask&#10;- Improved load time">{{request.form.experience or 'Software Intern, Tech Solutions — Jun 2024 - Dec 2024
+- Built REST API with Flask and PostgreSQL'}}</textarea>
+
+  <label style="font-weight:700;color:#e2e8f0">Projects (one per line)</label>
+  <textarea name="projects" rows="3" placeholder="E-Commerce Clone — React, Node.js — cart & payment&#10;Data Analysis Tool — Python Pandas — visualized fest data">{{request.form.projects or 'E-Commerce Clone — React, Node.js, MongoDB'}}</textarea>
+
+  <label style="font-weight:700;color:#e2e8f0">Certifications (optional)</label>
+  <input name="certs" placeholder="AWS Cloud Practitioner (2024), NPTEL Python" value="{{request.form.certs or ''}}">
+
+  <div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="btn-primary" style="flex:1">🤖 Generate AI Resume →</button>
+    <a class="btn-ghost" href="/analyze">Already have CV? Analyze →</a>
+  </div>
+  <small class="muted">AI will: add action verbs, quantify (+% metrics), weave JD keywords, ensure ATS headings. Honest mode — only adds “Familiar” for missing skills.</small>
+</form>
+</div>
+{% endblock %}

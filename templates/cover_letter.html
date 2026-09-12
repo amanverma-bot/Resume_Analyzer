@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:860px;margin:0 auto">
+<div class="badge-trust" style="margin-bottom:10px">✨ NEW — AI Cover Letter • Tailored to JD in 5s</div>
+<h1 style="font-size:36px;font-weight:900;color:#fff;margin:0">AI Cover Letter <span style="background:linear-gradient(135deg,#6366f1,#06b6d4);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Generator</span></h1>
+<p class="muted">Paste CV + JD (or LinkedIn URL) → AI writes ATS-friendly, hiring-manager-ready letter. No API key.</p>
+
+<form method="POST" class="card" style="display:flex;flex-direction:column;gap:12px">
+  <input name="name" placeholder="Your Full Name (e.g., Arjun Sharma)" value="{{ request.form.name or '' }}">
+  <div class="row">
+    <div>
+      <label style="font-weight:700;color:#e2e8f0">Your CV / Resume Text *</label>
+      <textarea name="cv_text" required placeholder="Paste your resume...">{{ cv_text }}</textarea>
+    </div>
+    <div>
+      <label style="font-weight:700;color:#e2e8f0">Job Description *</label>
+      <textarea name="jd_text" required placeholder="Paste JD...">{{ jd_text }}</textarea>
+      <input name="jd_url" placeholder="Or paste LinkedIn/Naukri URL (https://...)" value="{{ request.form.jd_url or ''}}" style="margin-top:8px">
+      <small class="muted">If URL + JD both given, JD text wins. URL auto-fetches.</small>
+    </div>
+  </div>
+  <button class="btn-primary">✉️ Generate Cover Letter →</button>
+  <small class="muted">Tip: After generating, you can download PDF and attach with resume. API: POST /api/cover-letter</small>
+</form>
+</div>
+{% endblock %}

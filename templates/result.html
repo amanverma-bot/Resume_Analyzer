@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+{% set s = res.scores %}
+{% set color = "#16a34a" if s.overall>=80 else "#ca8a04" if s.overall>=65 else "#ea580c" if s.overall>=45 else "#dc2626" %}
+{% set deg = (s.overall/100*360) %}
+
+<div class="score-hero">
+  <div class="donut-wrap">
+    <div class="donut" style="--deg: {{deg}}deg; --color: {{color}}">
+      <div class="donut-inner">
+        <div class="big-score" style="color:{{color}}">{{s.overall}}<small>/100</small></div>
+        <span class="badge" style="background:{{color}};font-size:11px">{{s.verdict}}</span>
+      </div>
+    </div>
+    <div class="donut-legend">
+      <b>Overall ATS Score</b><br>
+      <small>{{res.meta.method}} • CV {{res.meta.cv_words}}w • JD {{res.meta.jd_words}}w</small>
+      <div class="bars">
+        <div class="bar-row"><span>Keyword 40%</span><div class="bar"><div style="width:{{s.keyword_match}}%;background:#4f46e5"></div></div><b>{{s.keyword_match}}%</b></div>
+        <div class="bar-row"><span>Semantic 30%</span><div class="bar"><div style="width:{{s.semantic_similarity}}%;background:#06b6d4"></div></div><b>{{s.semantic_similarity}}%</b></div>
+        <div class="bar-row"><span>Skills 20%</span><div class="bar"><div style="width:{{s.skill_coverage}}%;background:#16a34a"></div></div><b>{{s.skill_coverage}}%</b></div>
+        {% set ats = (res.sections.values()|select|list|length / res.sections|length *100)|round(1) %}
+        <div class="bar-row"><span>ATS 10%</span><div class="bar"><div style="width:{{ats}}%;background:#f59e0b"></div></div><b>{{ats}}%</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="cta-box">
+    <h3>✨ Want to jump to 80%+ ?</h3>
+    <p>Our AI rewrites your bullets + injects missing keywords & skills — <b>1 click</b>. No API key.</p>
+    <a class="btn-primary" href="/enhance/{{aid}}">🤖 AI Enhance My CV → Predicted {{ (s.overall+12)|round(1) if s.overall<80 else s.overall }}%</a>
+    <small>Honest mode: missing skills marked “(Familiar)” — edit truthfully</small>
+  </div>
+</div>
+
+<div class="row">
+<div class="card">
+<h3>📇 Contact & ATS</h3>
+<p><b>Emails:</b> {{ res.contact.emails|join(', ') or '❌ Missing' }}<br>
+<b>Phones:</b> {{ res.contact.phones|join(', ') or '❌ Missing' }}<br>
+<b>Sections:</b> Present: {{ res.sections|selectattr('1')|map(attribute='0')|join(', ') }}<br>
+Missing: {{ res.sections|rejectattr('1')|map(attribute='0')|join(', ') or 'none' }}</p>
+<pre>{{ res.ats_checks|join('\n') }}</pre>
+</div>
+<div class="card">
+<h3>🛠️ Skills Gap</h3>
+<div class="skill-bars">
+  {% for sk in res.skills.gap.matched %}<span class="skill ok">{{sk}} ✓</span>{% endfor %}
+  {% for sk in res.skills.gap.missing %}<span class="skill miss">{{sk}} ✕</span>{% endfor %}
+</div>
+<p><b>CV ({{res.skills.cv_skills|length}}):</b> {{ res.skills.cv_skills|join(', ') or 'none' }}</p>
+<p><b>JD ({{res.skills.jd_skills|length}}):</b> {{ res.skills.jd_skills|join(', ') or 'none' }}</p>
+<p style="color:#16a34a"><b>✅ Matched:</b> {{ res.skills.gap.matched|join(', ') or '—' }}</p>
+<p style="color:#dc2626"><b>❌ Missing (ADD):</b> {{ res.skills.gap.missing|join(', ') or '—' }}</p>
+<p style="color:#666"><b>Extra:</b> {{ res.skills.gap.extra[:8]|join(', ') or '—' }}</p>
+</div>
+</div>
+
+<div class="card">
+<h3>🔑 Keywords</h3>
+<p class="muted">Top JD keywords: {% for k,v in res.keywords.top_jd_keywords[:12] %}<span class="kw">{{k}}<small>{{v}}</small></span> {% endfor %}</p>
+<div class="kw-grid">
+  <div><b style="color:#16a34a">✅ Matched {{res.keywords.matched|length}}</b><br><small>{{ res.keywords.matched[:40]|join(', ') }}</small></div>
+  <div><b style="color:#dc2626">❌ Missing {{res.keywords.missing|length}}</b><br><small>{{ res.keywords.missing[:25]|join(', ') }}</small></div>
+</div>
+</div>
+
+<div class="card">
+<h3>💡 Actionable Fixes</h3>
+<pre>{{ "1. Add missing skills: " + res.skills.gap.missing[:6]|join(', ') if res.skills.gap.missing else "Great skills coverage!" }}
+{{ "2. Weave missing keywords: " + res.keywords.missing[:8]|join(', ') }}
+3. Add 3-line Summary tailored to JD
+4. Keep ATS-safe: no tables/images, simple headings, PDF text-selectable
+5. Quantify 2-3 bullets (%, users, time saved)</pre>
+  <a class="btn-primary" href="/enhance/{{aid}}">✨ Auto-Fix with AI →</a>
+</div>
+
+<div class="card">
+<details><summary>Show raw JSON (for report appendix)</summary><pre>{{ res|tojson(indent=2) }}</pre></details>
+</div>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+<a class="btn-ghost" href="/analyze">← New Analysis</a> <a class="btn-ghost" href="/dashboard">Dashboard</a> <a class="btn-primary" href="/enhance/{{aid}}">🤖 Enhance CV</a>
+<a class="btn-ghost" href="/download/report/{{aid}}">⬇️ Download Report PDF</a>
+<a class="btn-ghost" href="/download/cv/{{aid}}">📄 Enhanced CV PDF</a>
+</div>
+<small class="muted">BERT: {{res.meta.method}} — install <code>pip install sentence-transformers</code> for true BERT (MiniLM-L6-v2), else TF-IDF used.</small>
+{% endblock %}

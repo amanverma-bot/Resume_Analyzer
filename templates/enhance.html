@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+{% set s = res.scores %}
+{% set color = "#16a34a" if enhanced.predicted_score>=80 else "#ca8a04" if enhanced.predicted_score>=65 else "#ea580c" %}
+<div class="score-hero">
+  <div class="donut-wrap">
+    <div class="donut" style="--deg: {{ (s.overall/100*360) }}deg; --color: #94a3b8">
+      <div class="donut-inner">
+        <div style="font-size:14px;color:#64748b">Before</div>
+        <div class="big-score" style="color:#64748b;font-size:32px">{{s.overall}}<small>/100</small></div>
+      </div>
+    </div>
+    <div style="font-size:24px;align-self:center">→</div>
+    <div class="donut" style="--deg: {{ (enhanced.predicted_score/100*360) }}deg; --color: {{color}}">
+      <div class="donut-inner">
+        <div style="font-size:14px;color:{{color}}">After AI</div>
+        <div class="big-score" style="color:{{color}};font-size:32px">{{enhanced.predicted_score}}<small>/100</small></div>
+        <span class="badge" style="background:{{color}}">+{{enhanced.boost}}% boost</span>
+      </div>
+    </div>
+    <div class="donut-legend">
+      <h3 style="margin:0">🤖 AI Enhanced Resume</h3>
+      <small>Role: {{enhanced.role}} • Fixes: {{enhanced.fixes|length}} applied</small>
+      <ul style="font-size:13px;margin:8px 0;padding-left:18px">
+        {% for f in enhanced.fixes %}<li>{{f}}</li>{% endfor %}
+      </ul>
+      <div class="pillok">Simulated new score — re-run Analyze to verify</div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+<div class="card">
+<h3>✨ Enhanced Summary (copy to top of CV)</h3>
+<div class="enhance-box">{{enhanced.enhanced_summary}}</div>
+<button class="btn-ghost sm" onclick="navigator.clipboard.writeText(`{{enhanced.enhanced_summary|e}}`);this.innerText='Copied!'" >📋 Copy</button>
+</div>
+<div class="card">
+<h3>🛠️ Enhanced Skills</h3>
+<div class="enhance-box">{{enhanced.enhanced_skills_line}}</div>
+<button class="btn-ghost sm" onclick="navigator.clipboard.writeText(`{{enhanced.enhanced_skills_line|e}}`);this.innerText='Copied!'">📋 Copy</button>
+<small class="muted">Missing injected as “(Familiar)” — only keep if you have proof (project/cert)</small>
+</div>
+</div>
+
+<div class="card">
+<h3>🚀 Enhanced Bullets (STAR + metrics + keywords)</h3>
+<div class="enhance-box bullets">
+{% for b in enhanced.enhanced_bullets %}<div>{{b}}</div>{% endfor %}
+</div>
+<button class="btn-ghost sm" onclick="navigator.clipboard.writeText(document.querySelector('.bullets').innerText);this.innerText='Copied!'">📋 Copy All Bullets</button>
+</div>
+
+<div class="card">
+<h3>📄 Full Enhanced CV (ATS-safe)</h3>
+<pre id="fullcv" style="max-height:420px;overflow:auto;background:#f8fafc;color:#0f172a;border:1px solid #e2e8f0">{{enhanced.enhanced_full}}</pre>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+<button class="btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('fullcv').innerText);this.innerText='✅ Copied!'">📋 Copy Full CV</button>
+<button class="btn-ghost" onclick="downloadCV()">⬇️ Download .txt</button>
+<a class="btn-ghost" href="/download/cv/{{aid}}">📄 Download PDF (ReportLab)</a>
+<a class="btn-ghost" href="/download/report/{{aid}}">📊 Report PDF</a>
+<a class="btn-ghost" href="/analyze">🔄 Re-analyze Enhanced CV</a>
+</div>
+</div>
+
+<div class="card">
+<h3>🔑 Injected Keywords</h3>
+<p><b>Skills:</b> {{enhanced.missing_injected|join(', ') or 'none'}} <br><b>Keywords:</b> {{enhanced.keywords_injected|join(', ')}}</p>
+<small class="muted">Tip: Don't just paste — add a mini-project or cert to justify each “Familiar” skill before interview. Viva will ask.</small>
+</div>
+
+<div style="display:flex;gap:10px">
+<a class="btn-ghost" href="/history/{{aid}}">← Back to Result</a>
+<a class="btn-primary" href="/dashboard">Dashboard</a>
+</div>
+
+<script>
+function downloadCV(){
+  const txt = document.getElementById('fullcv').innerText;
+  const blob = new Blob([txt], {type:'text/plain'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'Enhanced_Resume_{{aid}}.txt';
+  a.click();
+}
+</script>
+{% endblock %}

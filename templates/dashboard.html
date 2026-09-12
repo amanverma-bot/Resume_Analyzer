@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Welcome, {{ session.username }} 👋</h2>
+<div class="stats">
+  <div class="stat"><b>{{ total }}</b><span>Analyses Done</span></div>
+  <div class="stat"><b>{{ avg }}%</b><span>Average Score</span></div>
+  <div class="stat"><a class="btn" href="/analyze">+ New Analysis</a></div>
+</div>
+
+{% if history %}
+<h3>Recent History</h3>
+<table>
+<tr><th>ID</th><th>Date</th><th>Score</th><th>Verdict</th><th>Action</th></tr>
+{% for r in history %}
+<tr>
+  <td>#{{r.id}}</td>
+  <td>{{r.created_at[:19]}}</td>
+  <td><b style="color:{{'#16a34a' if r.overall>=70 else '#ca8a04' if r.overall>=45 else '#dc2626'}}">{{r.overall}}%</b></td>
+  <td>{{r.verdict}}</td>
+  <td><a href="/history/{{r.id}}">View →</a></td>
+</tr>
+{% endfor %}
+</table>
+{% else %}
+<div class="card">No analyses yet. <a href="/analyze">Analyze your first resume →</a></div>
+{% endif %}
+{% endblock %}

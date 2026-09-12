@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<div class="auth">
+<h2>Create Account</h2>
+<form method="POST">
+<input name="username" placeholder="Choose username" required>
+<input name="email" placeholder="Email (optional)">
+<input name="password" type="password" placeholder="Password" required>
+<button class="btn">Register</button>
+</form>
+<p>Already have? <a href="/login">Login</a></p>
+</div>
+{% endblock %}

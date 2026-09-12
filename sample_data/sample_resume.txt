@@ -1,0 +1,14 @@
+ARJUN SHARMA
+Email: arjun.sharma@email.com | Phone: +91 98765 43210
+SUMMARY
+Aspiring Software Engineer with 1 year internship building web apps with Python and React.
+EDUCATION
+BCA, Pune University — 2022-2025, 78%
+EXPERIENCE
+Software Intern, Tech Solutions — Jun 2024 - Dec 2024
+- Built REST API with Flask and PostgreSQL for 500 users
+- React dashboard improved load 30%
+PROJECTS
+E-Commerce Clone — React, Node.js, MongoDB
+SKILLS
+Python, JavaScript, React, Flask, Git, SQL, PostgreSQL, Docker, HTML, CSS

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:860px;margin:0 auto">
+<h2 style="color:#fff">🎤 Your Mock Interview — 7 Questions</h2>
+<p class="muted">Answer in 4-6 lines each, use STAR + JD keywords + metric. Submit for AI feedback.</p>
+<form method="POST" action="/mock-interview/evaluate">
+{% for q in questions %}
+<div class="card">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+<span class="badge" style="background:{% if q.type.startswith('Technical') %}#6366f1{% elif 'STAR' in q.type %}#06b6d4{% elif 'Project' in q.type %}#10b981{% else %}#f59e0b{% endif %}">{{ q.type }}</span>
+<small class="muted">Q{{ loop.index }}/{{ questions|length }}</small>
+</div>
+<p style="font-weight:700;color:#fff;margin:8px 0">{{ loop.index }}. {{ q.q }}</p>
+<small style="color:#a5b4fc">💡 Tip: {{ q.tip }} • Keywords: {{ q.keywords|join(', ') }}</small>
+<textarea name="ans_{{ loop.index0 }}" rows="3" placeholder="Your answer (STAR: Situation → Task → Action → Result)..." style="margin-top:8px"></textarea>
+</div>
+{% endfor %}
+<button class="btn-primary" style="width:100%;background:linear-gradient(135deg,#10b981,#06b6d4)">📊 Evaluate My Answers →</button>
+</form>
+</div>
+{% endblock %}

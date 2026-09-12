@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:860px;margin:0 auto">
+<div class="badge-trust" style="margin-bottom:10px">✨ NEW — AI Mock Interview • Tailored to your CV + JD</div>
+<h1 style="font-size:36px;font-weight:900;color:#fff;margin:0">AI Mock Interview <span style="background:linear-gradient(135deg,#f59e0b,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent">in 10s</span></h1>
+<p class="muted">Paste CV + JD (or LinkedIn URL) → get 7 tailored Qs (Technical + STAR + HR) → answer → get AI score 0-10 + feedback. Viva-ready.</p>
+<form method="POST" class="card" style="display:flex;flex-direction:column;gap:12px">
+  <div class="row">
+    <div>
+      <label style="font-weight:700;color:#e2e8f0">Your CV / Resume *</label>
+      <textarea name="cv_text" required>{{ cv_text }}</textarea>
+    </div>
+    <div>
+      <label style="font-weight:700;color:#e2e8f0">Job Description *</label>
+      <textarea name="jd_text" required>{{ jd_text }}</textarea>
+      <input name="jd_url" placeholder="Or LinkedIn URL (https://...)" style="margin-top:8px">
+    </div>
+  </div>
+  <button class="btn-primary" style="background:linear-gradient(135deg,#f59e0b,#ec4899)">🎤 Generate Interview Questions →</button>
+  <small class="muted">Based on your matched/missing skills + projects + JD. No API key.</small>
+</form>
+</div>
+{% endblock %}

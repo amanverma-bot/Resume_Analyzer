@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Admin Panel</h2>
+<h3>Users ({{users|length}})</h3>
+<table><tr><th>ID</th><th>Username</th><th>Email</th><th>Created</th></tr>
+{% for u in users %}<tr><td>{{u.id}}</td><td>{{u.username}}</td><td>{{u.email}}</td><td>{{u.created_at[:19]}}</td></tr>{% endfor %}
+</table>
+<h3>All Analyses ({{analyses|length}})</h3>
+<table><tr><th>ID</th><th>User</th><th>Score</th><th>Date</th><th>View</th></tr>
+{% for a in analyses %}<tr><td>{{a.id}}</td><td>{{a.username}}</td><td>{{a.overall}}%</td><td>{{a.created_at[:19]}}</td><td><a href="/history/{{a.id}}">Open</a></td></tr>{% endfor %}
+</table>
+{% endblock %}

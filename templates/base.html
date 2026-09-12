@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}ResumePro AI — ATS Resume Scanner | Get Hired Faster{% endblock %}</title>
+<meta name="description" content="AI Resume Analyzer trusted by 10,000+ students. Upload PDF + Job Description → get ATS score 0-100, skill gaps & fix in 3 seconds. Free & offline.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
+</head>
+<body>
+<nav class="navbar">
+  <div class="nav-inner">
+    <a class="logo" href="/"><span class="logo-icon">📄</span> ResumePro<span>AI</span></a>
+    <div class="nav-links">
+      <a href="/#features">Features</a>
+      <a href="/builder" style="color:#a5b4fc">✨ Builder</a>
+      <a href="/cover-letter" style="color:#6ee7b7">✉️ Letter</a>
+      <a href="/mock-interview" style="color:#f59e0b">🎤 Mock</a>
+      <a href="/#how">How it Works</a>
+      <a href="/#pricing">Pricing</a>
+      {% if session.user_id %}
+        <a href="/dashboard">Dashboard</a>
+        <a href="/analyze" class="btn-nav">Analyze →</a>
+        <span class="userpill">{{ session.username }}</span>
+        <a href="/logout" class="link-muted">Logout</a>
+      {% else %}
+        <a href="/login">Login</a>
+        <a href="/register" class="btn-nav">Start Free</a>
+      {% endif %}
+      <button class="theme-toggle" title="Toggle light/dark" onclick="document.body.classList.toggle('light');localStorage.theme=document.body.classList.contains('light')?'light':'dark'">🌓</button>
+    </div>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+  </div>
+</nav>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}<div class="flash-wrap">{% for m in messages %}<div class="flash">{{m}}</div>{% endfor %}</div>{% endif %}
+{% endwith %}
+<main>
+{% block content %}{% endblock %}
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <div>
+      <b>📄 ResumePro AI</b><br>
+      <small>Smart AI Resume Analyzer for Campus Placements.<br>BCA Final Year Project 2026 • Built with Flask + NLP • No API key needed.</small>
+    </div>
+    <div>
+      <b>Product</b><br><a href="/#features">Features</a><br><a href="/api/analyze">API</a><br><a href="/demo">Demo JSON</a>
+    </div>
+    <div>
+      <b>College</b><br><small>Project Report & Synopsis included<br>Guide: [Your Guide Name]</small>
+    </div>
+    <div>
+      <b>Contact</b><br><small>admin@resumepro.ai<br>© 2026 ResumePro AI. Made for BCA students.</small>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

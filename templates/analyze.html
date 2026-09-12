@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Analyze Resume vs Job Description</h2>
+<p class="muted">Upload PDF/DOCX or paste text. Result shows ATS score, missing skills, keyword fixes.</p>
+<form method="POST" enctype="multipart/form-data" class="form">
+<div class="row">
+  <div class="card">
+    <h3>CV / Resume</h3>
+    <textarea name="cv_text" placeholder="Paste CV text...">{{ demo_cv }}</textarea>
+    <label class="file">Or upload: <input type="file" name="cv_file" accept=".pdf,.docx,.txt"></label>
+  </div>
+  <div class="card">
+    <h3>Job Description</h3>
+    <textarea name="jd_text" placeholder="Paste JD...">{{ demo_jd }}</textarea>
+    <input name="jd_url" placeholder="Or paste LinkedIn/Naukri URL (https://...)" style="margin-top:8px">
+    <label class="file">Or upload: <input type="file" name="jd_file" accept=".pdf,.docx,.txt"></label>
+    <small class="muted">✨ New: paste URL → auto-fetches JD</small>
+  </div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+<button class="btn-primary" style="flex:1">🔍 Analyze Now</button>
+<a class="btn-ghost" href="/cover-letter">✉️ Need Cover Letter?</a>
+<a class="btn-ghost" href="/builder">✨ Build CV with AI</a>
+</div>
+</form>
+{% endblock %}

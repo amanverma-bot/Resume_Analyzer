@@ -1,0 +1,8 @@
+We are hiring Junior Python Developer — Pune
+Requirements:
+- Strong Python, Django or Flask, REST API
+- Frontend: React, HTML, CSS, JavaScript
+- Databases: PostgreSQL, MySQL, MongoDB
+- Cloud: AWS, Docker, Kubernetes, CI/CD
+- Good communication, teamwork, Agile
+- Preferred: Machine Learning, Pandas, 1+ years experience
