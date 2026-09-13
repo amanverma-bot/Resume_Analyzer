@@ -11,7 +11,7 @@
 <p align="center">
   <b>ATS Resume Scanner for Campus Placements</b> — <b>Dark Neon Glass UI</b> • Flask + SQLite + NLP (TF-IDF/BERT) • No API key, offline
   <br/>
-  <a href="https://switching-parts-bryan-murray.trycloudflare.com"><b>🌐 Live Demo</b></a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-viva">Viva</a>
+  <a href="https://combined-lindsay-convinced-institutions.trycloudflare.com"><b>🌐 Live Demo</b></a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-viva">Viva</a>
 </p>
 
 > **70% resumes rejected by ATS before HR sees them.** This gives instant **ATS score 0-100** + exactly what to fix — like Jobscan, but free & offline for BCA.
@@ -92,7 +92,7 @@ cat tunnel_cf.log | grep trycloudflare
 
 - **Demo CV/JD:** in `analyser.py:DEMO_CV` (pre-filled in forms)
 - **CLI:** `python analyser.py --demo` → pretty report
-- **Live:** https://switching-parts-bryan-murray.trycloudflare.com
+- **Live:** https://combined-lindsay-convinced-institutions.trycloudflare.com
 
 ---
 
@@ -119,6 +119,6 @@ cat tunnel_cf.log | grep trycloudflare
 
 **BCA 3rd Year — [Your Name] — [Roll No] — [College Name] 2026**  
 Guide: [Guide Name]  
-GitHub: [@amanverma-bot/Resume_Analyzer](https://github.com/amanverma-bot/Resume_Analyzer) • Live: https://switching-parts-bryan-murray.trycloudflare.com
+GitHub: [@amanverma-bot/Resume_Analyzer](https://github.com/amanverma-bot/Resume_Analyzer) • Live: https://combined-lindsay-convinced-institutions.trycloudflare.com
 
 <p align="center">Made with ❤️ for placements — Dark Neon Edition 🌙</p>
