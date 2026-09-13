@@ -15,7 +15,7 @@ import analyser as core
 import io
 
 app = Flask(__name__)
-app.secret_key = "bca-final-year-2026-secret-key-change-in-prod"
+app.secret_key = os.environ.get("SECRET_KEY", "bca-final-year-2026-secret-key-change-in-prod")
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB
 DATABASE = 'database/app.db'

@@ -11,7 +11,7 @@
 <p align="center">
   <b>ATS Resume Scanner for Campus Placements</b> — <b>Dark Neon Glass UI</b> • Flask + SQLite + NLP (TF-IDF/BERT) • No API key, offline
   <br/>
-  <a href="https://78c337b30ec12a.lhr.life"><b>🌐 Live Demo</b></a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-viva">Viva</a>
+  <a href="https://switching-parts-bryan-murray.trycloudflare.com"><b>🌐 Live Demo</b></a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-viva">Viva</a>
 </p>
 
 > **70% resumes rejected by ATS before HR sees them.** This gives instant **ATS score 0-100** + exactly what to fix — like Jobscan, but free & offline for BCA.
@@ -45,7 +45,7 @@
 - **Parsing:** PyPDF2, python-docx
 - **PDF:** ReportLab
 - **Frontend:** Jinja2 + Inter + CSS glass/neon (no React — viva friendly)
-- **Deploy:** Docker, Render, `localhost.run` tunnel
+- **Deploy:** Docker, Render, Cloudflare Quick Tunnel (`cloudflared`), `localhost.run`
 
 ---
 
@@ -79,8 +79,11 @@ No deps? `python web_stdlib.py` → http://127.0.0.1:8000
 
 **Public tunnel (Termux):**
 ```bash
-nohup ssh -n -o StrictHostKeyChecking=no -R 80:localhost:5000 nokey@localhost.run > tunnel.log 2>&1 &
-cat tunnel.log | grep https
+# Cloudflare Quick Tunnel (needs: pkg install cloudflared proot)
+# proot fixes DNS: Go resolver reads /etc/resolv.conf which is read-only on Android
+nohup proot -b $PREFIX/etc/resolv.conf:/etc/resolv.conf cloudflared tunnel \
+  --protocol http2 --url http://localhost:5000 --no-autoupdate > tunnel_cf.log 2>&1 &
+cat tunnel_cf.log | grep trycloudflare
 ```
 
 ---
@@ -89,7 +92,7 @@ cat tunnel.log | grep https
 
 - **Demo CV/JD:** in `analyser.py:DEMO_CV` (pre-filled in forms)
 - **CLI:** `python analyser.py --demo` → pretty report
-- **Live:** https://78c337b30ec12a.lhr.life
+- **Live:** https://switching-parts-bryan-murray.trycloudflare.com
 
 ---
 
@@ -116,6 +119,6 @@ cat tunnel.log | grep https
 
 **BCA 3rd Year — [Your Name] — [Roll No] — [College Name] 2026**  
 Guide: [Guide Name]  
-GitHub: [@amanverma-bot/Resume_Analyzer](https://github.com/amanverma-bot/Resume_Analyzer) • Live: https://78c337b30ec12a.lhr.life
+GitHub: [@amanverma-bot/Resume_Analyzer](https://github.com/amanverma-bot/Resume_Analyzer) • Live: https://switching-parts-bryan-murray.trycloudflare.com
 
 <p align="center">Made with ❤️ for placements — Dark Neon Edition 🌙</p>
