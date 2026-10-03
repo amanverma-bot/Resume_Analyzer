@@ -44,6 +44,9 @@
   <label style="font-weight:700;color:#e2e8f0">Projects (one per line)</label>
   <textarea name="projects" rows="3" placeholder="E-Commerce Clone — React, Node.js — cart & payment&#10;Data Analysis Tool — Python Pandas — visualized fest data">{{request.form.projects or 'E-Commerce Clone — React, Node.js, MongoDB'}}</textarea>
 
+  <label style="font-weight:700;color:#e2e8f0">Achievements (one per line — quantify!)</label>
+  <textarea name="achievements" rows="2" placeholder="Hackathon winner — 500+ teams&#10;Leetcode 300+ problems, Top 5% class">{{request.form.achievements or ''}}</textarea>
+
   <label style="font-weight:700;color:#e2e8f0">Certifications (optional)</label>
   <input name="certs" placeholder="AWS Cloud Practitioner (2024), NPTEL Python" value="{{request.form.certs or ''}}">
 

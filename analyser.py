@@ -70,20 +70,44 @@ except ImportError:
 # Common skill database - expand as needed
 SKILLS_DB = [
     # Programming
-    "python", "java", "javascript", "typescript", "c++", "c#", "go", "rust", "ruby", "php", "kotlin", "swift", "sql", "r", "scala", "perl",
+    "python", "java", "javascript", "typescript", "c++", "c#", "go", "rust", "ruby", "php", "kotlin", "swift", "sql", "r", "scala", "perl", "dart",
     # Web
-    "html", "css", "react", "angular", "vue", "node.js", "nodejs", "django", "flask", "fastapi", "spring", "express", "next.js", "tailwind",
-    # Data / AI
-    "machine learning", "deep learning", "data analysis", "data science", "pandas", "numpy", "tensorflow", "pytorch", "scikit-learn", "nlp", "computer vision", "llm", "generative ai",
+    "html", "css", "react", "angular", "vue", "node.js", "nodejs", "django", "flask", "fastapi", "spring", "spring boot", "express", "next.js", "nuxt.js", "tailwind", "bootstrap", "jquery", "redux",
+    # Data / AI (expanded 2026)
+    "machine learning", "deep learning", "data analysis", "data science", "pandas", "numpy", "tensorflow", "pytorch", "scikit-learn", "nlp", "computer vision", "llm", "generative ai", "prompt engineering", "langchain", "huggingface", "openai", "rag", "transformers", "keras", "opencv", "matplotlib", "seaborn", "scipy", "mlops",
     # Cloud / DevOps
-    "aws", "azure", "gcp", "docker", "kubernetes", "jenkins", "git", "github", "gitlab", "ci/cd", "terraform", "linux", "bash",
+    "aws", "azure", "gcp", "docker", "kubernetes", "jenkins", "git", "github", "gitlab", "ci/cd", "terraform", "ansible", "linux", "bash", "nginx", "github actions", "bitbucket", "jira",
     # Databases
-    "mysql", "postgresql", "mongodb", "redis", "oracle", "sqlite", "elasticsearch",
+    "mysql", "postgresql", "mongodb", "redis", "oracle", "sqlite", "elasticsearch", "cassandra", "dynamodb", "firebase", "supabase",
+    # Mobile / Other eng
+    "flutter", "react native", "android", "ios", "figma", "photoshop", "rest api", "graphql", "microservices", "websockets", "oauth", "jwt", "rabbitmq", "kafka",
+    # CS fundamentals (recruiters keyword-match these)
+    "dsa", "data structures", "algorithms", "oops", "dbms", "operating systems", "computer networks", "system design",
+    # Office / Analytics
+    "excel", "power bi", "tableau", "powerpoint", "word",
     # Soft
-    "communication", "leadership", "teamwork", "problem solving", "agile", "scrum", "project management",
-    # Other
-    "excel", "power bi", "tableau", "figma", "photoshop", "rest api", "graphql", "microservices"
+    "communication", "leadership", "teamwork", "problem solving", "agile", "scrum", "project management", "time management",
 ]
+
+# Alias map: variant -> canonical (viva point: normalization improves recall)
+SKILL_ALIASES = {
+    "nodejs": "node.js", "node js": "node.js", "node": "node.js",
+    "k8s": "kubernetes",
+    "tf": "tensorflow", "py torch": "pytorch",
+    "sklearn": "scikit-learn", "scikit learn": "scikit-learn",
+    "postgres": "postgresql",
+    "mongo": "mongodb",
+    "js": "javascript", "ts": "typescript",
+    "reactjs": "react", "react.js": "react",
+    "nextjs": "next.js", "next js": "next.js",
+    "vuejs": "vue",
+    "gh actions": "github actions",
+    "rest": "rest api", "restapis": "rest api",
+    "ml": "machine learning", "dl": "deep learning", "ds": "data science",
+    "genai": "generative ai", "gen ai": "generative ai",
+    "hf": "huggingface",
+    "rn": "react native",
+}
 
 # Common sections to check ATS
 ATS_SECTIONS = ["contact", "summary", "experience", "education", "skills", "projects", "certifications"]
@@ -151,41 +175,93 @@ def extract_contact(text: str) -> dict:
 
 def extract_skills(text: str) -> list:
     low = text.lower()
-    found = []
+    found = set()
     for s in SKILLS_DB:
         # Use word boundaries, handle special chars like c++, node.js
         pat = r"(?<!\w)" + re.escape(s.lower()) + r"(?!\w)"
         # For skills with dots/slashes, simpler containment
         if any(c in s for c in ["+", ".", "/"]):
             if s.lower() in low:
-                found.append(s)
+                found.add(s)
         else:
             if re.search(pat, low):
-                found.append(s)
-    return sorted(set(found))
+                found.add(s)
+    # alias pass: map variants to canonical
+    for alias, canon in SKILL_ALIASES.items():
+        pat = r"(?<!\w)" + re.escape(alias) + r"(?!\w)"
+        if re.search(pat, low):
+            found.add(canon)
+    # dedupe nodejs/node.js double-count
+    if "node.js" in found and "nodejs" in found:
+        found.discard("nodejs")
+    return sorted(found)
 
 def extract_years_experience(text: str) -> float | None:
-    # Look for "X years" patterns
-    m = re.findall(r"(\d+(?:\.\d+)?)\s*\+?\s*years?[\s\w]*experience", text, re.I)
-    if m:
-        try:
-            return max(float(x) for x in m)
-        except:
-            pass
-    # Look for date ranges 2020-2024 etc to estimate
-    dates = re.findall(r"(19|20)\d{2}\s*[-–—to]+\s*(19|20)\d{2}|present|current", text, re.I)
-    # Fallback: count work entries
+    # Patterns: "3 years experience", "3+ years", "3 yrs", "3 yoe"
+    pats = [
+        r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?|yoe)[\s\w]{0,20}experience",
+        r"experience[\s\w]{0,20}(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?|yoe)",
+        r"(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?|yoe)\b",
+    ]
+    vals = []
+    for pat in pats:
+        for m in re.findall(pat, text, re.I):
+            try:
+                v = float(m)
+                if 0 < v < 40:
+                    vals.append(v)
+            except Exception:
+                pass
+    if vals:
+        return max(vals)
     return None
+
+def extract_required_years(jd_text: str) -> float | None:
+    """Parse '2+ years', 'minimum 3 years', 'fresher' from JD."""
+    low = jd_text.lower()
+    if re.search(r"\bfresher\b|\b0\s*[-–]?\s*1\s*years?\b|\bentry[\s-]?level\b", low):
+        return 0.0
+    m = re.findall(r"(?:minimum|at least|atleast|\+)?\s*(\d+(?:\.\d+)?)\s*\+?\s*(?:years?|yrs?|yoe)", jd_text, re.I)
+    vals = []
+    for v in m:
+        try:
+            f = float(v)
+            if 0 < f < 30:
+                vals.append(f)
+        except Exception:
+            pass
+    if vals:
+        return min(vals)  # JD minimum = smallest mentioned
+    return None
+
+def experience_match(cv_years: float | None, jd_years: float | None) -> dict:
+    """Explainable experience fit: meets/partial/gap. Used as ±5 bonus, viva-safe."""
+    if jd_years is None:
+        return {"cv": cv_years, "required": None, "status": "JD no explicit requirement", "delta": 0.0}
+    if cv_years is None:
+        return {"cv": None, "required": jd_years, "status": "Add years explicitly (e.g. '1 year internship experience')", "delta": -3.0}
+    if cv_years >= jd_years:
+        return {"cv": cv_years, "required": jd_years, "status": f"Meets requirement ({cv_years} ≥ {jd_years} yrs)", "delta": 3.0}
+    gap = round(jd_years - cv_years, 1)
+    if gap <= 1.0:
+        return {"cv": cv_years, "required": jd_years, "status": f"Close — short by ~{gap} yr (show internships/projects as experience)", "delta": -1.5}
+    return {"cv": cv_years, "required": jd_years, "status": f"Gap of ~{gap} yrs — emphasize projects + freelancing to bridge", "delta": -4.0}
 
 def detect_sections(text: str) -> dict:
     low = text.lower()
+    aliases = {
+        "contact": ["contact", "email", "phone"],
+        "summary": ["summary", "objective", "profile"],
+        "experience": ["experience", "work history", "employment", "internship"],
+        "education": ["education", "academic", "qualification"],
+        "skills": ["skills", "tech stack", "technologies"],
+        "projects": ["projects", "portfolio"],
+        "certifications": ["certifications", "certificates", "courses"],
+    }
     present = {}
-    for sec in ATS_SECTIONS:
-        # headings often capitalized or with line breaks
-        if re.search(r"\b" + re.escape(sec) + r"\b", low):
-            present[sec] = True
-        else:
-            present[sec] = False
+    for sec, variants in aliases.items():
+        hit = any(re.search(r"\b" + re.escape(v) + r"\b", low) for v in variants)
+        present[sec] = bool(hit)
     return present
 
 def ats_checks(text: str, contact: dict, sections: dict) -> list:
@@ -328,14 +404,14 @@ def skill_gap(cv_skills: list, jd_skills: list) -> dict:
         "coverage": round(coverage, 1)
     }
 
-def overall_score(keyword_score: float, semantic: float | None, skill_coverage: float, sections: dict, contact_ok: bool) -> float:
-    # Weighting: 40% keyword, 30% semantic, 20% skills, 10% ATS structure
+def overall_score(keyword_score: float, semantic: float | None, skill_coverage: float, sections: dict, contact_ok: bool, exp_delta: float = 0.0) -> float:
+    # Weighting: 40% keyword, 30% semantic, 20% skills, 10% ATS structure + viva-safe ±5 exp bonus
     sem = semantic if semantic is not None else keyword_score  # fallback
     ats_score = sum(sections.values()) / len(sections) * 100 if sections else 50
     if not contact_ok:
         ats_score *= 0.7
-    total = keyword_score * 0.4 + sem * 0.3 + skill_coverage * 0.2 + ats_score * 0.1
-    return round(total, 1)
+    total = keyword_score * 0.4 + sem * 0.3 + skill_coverage * 0.2 + ats_score * 0.1 + exp_delta
+    return round(max(0, min(100, total)), 1)
 
 def verdict(score: float) -> str:
     if score >= 80:
@@ -361,7 +437,13 @@ def analyse(cv_text: str, jd_text: str) -> dict:
 
     gap = skill_gap(cv_skills, jd_skills)
     contact_ok = bool(contact["emails"])
-    total = overall_score(kw["score"], sem, gap["coverage"], sections, contact_ok)
+    cv_yrs = extract_years_experience(cv_text)
+    jd_yrs = extract_required_years(jd_text)
+    exp = experience_match(cv_yrs, jd_yrs)
+    total = overall_score(kw["score"], sem, gap["coverage"], sections, contact_ok, exp["delta"])
+
+    # surface experience in ATS checks (explainable, no score hiding)
+    ats = list(ats) + [f"💼 Experience: {exp['status']}"]
 
     return {
         "meta": {
@@ -372,6 +454,7 @@ def analyse(cv_text: str, jd_text: str) -> dict:
         },
         "contact": contact,
         "sections": sections,
+        "experience": exp,
         "skills": {
             "cv_skills": cv_skills,
             "jd_skills": jd_skills,
@@ -389,7 +472,7 @@ def analyse(cv_text: str, jd_text: str) -> dict:
     }
 
 def ai_build_cv(data: dict) -> str:
-    """Build ATS-safe CV from form data with AI polish (no API key)."""
+    """Build ATS-safe CV from form data with AI polish (no API key). Supports achievements."""
     name = data.get("name","").strip() or "YOUR NAME"
     email = data.get("email","").strip()
     phone = data.get("phone","").strip()
@@ -403,6 +486,7 @@ def ai_build_cv(data: dict) -> str:
     exp_in = data.get("experience","").strip()
     proj_in = data.get("projects","").strip()
     certs = data.get("certs","").strip()
+    achievements_in = data.get("achievements","").strip()
 
     # header
     header = name.upper()
@@ -482,11 +566,121 @@ def ai_build_cv(data: dict) -> str:
     sections.append("")
     sections.append("SKILLS")
     sections.append(skills_clean or "Python, SQL, Git")
+    if achievements_in:
+        ach_lines = [l.strip() for l in achievements_in.split("\n") if l.strip()]
+        polished_ach = []
+        for a in ach_lines:
+            if not a.startswith("•") and not a.startswith("-"):
+                has_metric = bool(re.search(r"\d+%|\d+", a))
+                suffix = "" if has_metric else " — quantify this (e.g. rank, %, users)"
+                polished_ach.append(f"• {a}{suffix}")
+            else:
+                polished_ach.append(a if a.startswith("•") else a.replace("-", "•", 1))
+        sections.append("")
+        sections.append("ACHIEVEMENTS")
+        sections.extend(polished_ach)
     if certs:
         sections.append("")
         sections.append("CERTIFICATIONS")
         sections.append(certs)
     return "\n".join(sections).strip()
+
+def detailed_feedback(cv_text: str, jd_text: str, res: dict) -> dict:
+    """Structured breakdown for Analyzer UI: ATS, skills, education, experience,
+    missing sections, keywords, formatting + actionable suggestions with
+    required phrasing."""
+    gap = res["skills"]["gap"]
+    kw = res["keywords"]
+    secs = res["sections"]
+    s = res["scores"]
+    exp = res.get("experience", {})
+
+    # --- education check ---
+    edu_lines = [l.strip() for l in cv_text.split("\n") if re.search(r"B\.?Tech|BCA|MCA|B\.?Sc|M\.?Sc|MBA|University|College|CGPA|%|12th|10th|Bachelor|Master", l, re.I)]
+    edu_status = "Found" if secs.get("education") and edu_lines else "Missing/weak"
+    edu_detail = "; ".join(edu_lines[:3]) if edu_lines else "No degree/college line detected"
+
+    # --- experience check ---
+    exp_lines = [l.strip() for l in cv_text.split("\n") if re.search(r"intern|experience|worked|developer|engineer|\d{4}", l, re.I)][:4]
+
+    # --- formatting problems (explicit) ---
+    fmt = []
+    wc = len(cv_text.split())
+    if wc < 200:
+        fmt.append(f"Too short ({wc} words) — ATS prefers 400-1000 words")
+    elif wc > 1200:
+        fmt.append(f"Too long ({wc} words) — keep 1-2 pages")
+    else:
+        fmt.append(f"Length OK ({wc} words)")
+    if len(re.findall(r"[^\x00-\x7F]", cv_text)) > 20:
+        fmt.append("Many icons/special characters — may break ATS parsing (use plain text)")
+    else:
+        fmt.append("Characters ATS-safe (plain text)")
+    bullets = len(re.findall(r"[•\-\*]\s", cv_text))
+    if bullets < 3:
+        fmt.append(f"Only {bullets} bullet points — use • bullets for every achievement")
+    else:
+        fmt.append(f"Bullets OK ({bullets} found)")
+    if re.search(r"\|.*\|", cv_text):
+        fmt.append("Tables/columns detected (| separators) — ATS may misread; use single-column lines")
+    verbs = ["achieved","built","developed","led","managed","created","designed","implemented","improved","increased","reduced","launched","delivered","optimized"]
+    fv = [v for v in verbs if re.search(r"\b"+v+r"\b", cv_text.lower())]
+    if len(fv) < 3:
+        fmt.append(f"Weak action verbs (found: {', '.join(fv) or 'none'}) — start bullets with Built/Developed/Improved")
+    else:
+        fmt.append(f"Action verbs OK: {', '.join(fv[:5])}")
+    # summary specificity
+    m_sum = re.search(r"summary\s*\n(.{0,400})", cv_text, re.I)
+    summary_txt = m_sum.group(1).strip() if m_sum else ""
+    summary_specific = bool(summary_txt and len(summary_txt) > 80 and re.search(r"\d|python|react|year|developer|engineer", summary_txt, re.I))
+
+    # --- ATS compatibility 0-100 subscore ---
+    ats_pct = round(sum(secs.values()) / len(secs) * 100, 1) if secs else 0
+    if not res["contact"]["emails"]:
+        ats_pct = round(ats_pct * 0.7, 1)
+
+    # --- suggestions (must include user's required phrases) ---
+    suggestions = []
+    nums = re.findall(r"\d+\s*%|\$\s*\d+|\d+\s*(users|clients|projects|revenue|sales|members?)", cv_text, re.I)
+    if len(nums) < 2:
+        suggestions.append("Add measurable achievements — e.g. 'Improved load time 30%', 'Served 500+ users', 'Led 4-member team'. ATS + HR both rank quantified bullets higher.")
+    else:
+        suggestions.append(f"Good: {len(nums)} measurable achievements found — keep quantifying every bullet.")
+    if gap["missing"]:
+        suggestions.append(f"Add these skills for this job description: {', '.join(gap['missing'][:6])} — add only if truthful, mark learning as '(Familiar)' with a mini-project as proof.")
+    else:
+        suggestions.append("Skills fully cover this JD — mirror exact JD phrasing (e.g. 'REST API' not 'APIs').")
+    if not secs.get("summary"):
+        suggestions.append("Your summary could be more specific — add a 3-line summary: Role + years + 2-3 JD skills (e.g. 'Junior Python Developer with 1-year Flask/React experience...').")
+    elif not summary_specific:
+        suggestions.append("Your summary could be more specific — mention role, years, and 2-3 JD keywords with a metric instead of generic 'hardworking' lines.")
+    else:
+        suggestions.append("Summary looks specific — keep it tailored per JD.")
+    if kw["missing"]:
+        suggestions.append(f"Weave missing JD keywords naturally into Experience: {', '.join(kw['missing'][:8])}.")
+    missing_secs = [k for k, v in secs.items() if not v]
+    if missing_secs:
+        suggestions.append(f"Add missing sections with exact headings: {', '.join(missing_secs)} — ATS searches for these headings.")
+    if exp.get("required") is not None and exp.get("cv") is None:
+        suggestions.append(f"Experience gap: JD wants ~{exp['required']} yrs but none stated — write '1-year internship experience' explicitly.")
+    suggestions.append("Keep formatting ATS-safe: single column, no tables/images/textboxes, standard headings, export text-selectable PDF.")
+
+    return {
+        "ats_compatibility": ats_pct,
+        "skills": {"cv": res["skills"]["cv_skills"], "jd": res["skills"]["jd_skills"],
+                   "matched": gap["matched"], "missing": gap["missing"], "coverage": gap["coverage"]},
+        "education": {"status": edu_status, "detail": edu_detail},
+        "experience": {"cv_years": exp.get("cv"), "required": exp.get("required"),
+                       "status": exp.get("status", "—"), "lines": exp_lines},
+        "missing_sections": [k for k, v in secs.items() if not v],
+        "present_sections": [k for k, v in secs.items() if v],
+        "keywords": {"matched": kw["matched"][:40], "missing": kw["missing"][:25],
+                     "top": kw["top_jd_keywords"][:12], "score": kw["score"]},
+        "formatting": fmt,
+        "suggestions": suggestions,
+        "overall": s["overall"],
+        "verdict": s["verdict"],
+    }
 
 def ai_cover_letter(cv_text: str, jd_text: str, data: dict = None) -> str:
     """Generate tailored cover letter (no API key, ATS-friendly)."""
@@ -547,12 +741,33 @@ def fetch_jd_from_url(url: str, timeout: int = 10) -> str:
     """Fetch JD text from URL (LinkedIn/Naukri/generic). No API key."""
     if not url or not re.match(r"https?://", url, re.I):
         return ""
-    # basic SSRF guard: only http/https
+    # SSRF guard: block localhost / private nets / cloud metadata
+    try:
+        import urllib.parse as _up, ipaddress as _ip, socket as _sock
+        host = _up.urlparse(url).hostname or ""
+        if host.lower() in ("localhost", "metadata.google.internal"):
+            return ""
+        if host == "169.254.169.254":
+            return ""
+        try:
+            infos = _sock.getaddrinfo(host, None, family=_sock.AF_UNSPEC)
+            for fam, _, _, _, sockaddr in infos:
+                ipstr = sockaddr[0]
+                if _ip.ip_address(ipstr).is_private or _ip.ip_address(ipstr).is_loopback or _ip.ip_address(ipstr).is_link_local:
+                    return ""
+        except Exception:
+            pass  # DNS fail -> let urlopen fail gracefully below
+    except Exception:
+        return ""
     try:
         import urllib.request, urllib.error
         req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0 (ResumePro AI BCA)"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
-            html = resp.read().decode('utf-8', errors='ignore')
+            ctype = resp.headers.get("Content-Type", "")
+            if "text" not in ctype and "html" not in ctype:
+                return ""
+            raw = resp.read(300_000)  # cap 300KB
+            html = raw.decode('utf-8', errors='ignore')
             # naive extract: remove scripts/styles, get text between <p> <li> <div>
             # strip tags
             text = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", html, flags=re.I|re.S)

@@ -6,19 +6,34 @@ Run: pip install flask PyPDF2 python-docx scikit-learn
      python app.py
 Open: http://127.0.0.1:5000
 """
-import os, sqlite3, json
+import os, sqlite3, json, time, secrets
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, session, flash, g, send_file, jsonify, make_response
 import analyser as core
 import io
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "bca-final-year-2026-secret-key-change-in-prod")
+_secret_default = "bca-final-year-2026-secret-key-change-in-prod"
+app.secret_key = os.environ.get("SECRET_KEY", _secret_default)
+if app.secret_key == _secret_default:
+    print("⚠️  WARNING: using default SECRET_KEY — set SECRET_KEY env var in production")
+# Hardened session cookies (viva point: XSS/CSRF mitigation)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("HTTPS", "") == "1",
+)
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 5 * 1024 * 1024  # 5MB
+ALLOWED_EXTS = {".pdf", ".docx", ".txt", ".md"}
 DATABASE = 'database/app.db'
+
+# Simple in-memory login rate limit: 5 fails / 5 min per IP
+_login_fails: dict = {}
 
 # ---------- DB ----------
 def get_db():
@@ -57,11 +72,17 @@ def init_db():
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
         """)
-        # create default admin
-        cur = conn.execute("SELECT id FROM users WHERE username='admin'")
-        if not cur.fetchone():
+        # create default admin (hashed). Migrate plain-text legacy automatically.
+        cur = conn.execute("SELECT id, password FROM users WHERE username='admin'")
+        row = cur.fetchone()
+        if not row:
             conn.execute("INSERT INTO users(username,password,email,created_at) VALUES(?,?,?,?)",
-                         ('admin','admin123','admin@college.edu', datetime.now().isoformat()))
+                         ('admin', generate_password_hash('admin123'), 'admin@college.edu', datetime.now().isoformat()))
+            conn.commit()
+        elif row[1] == 'admin123':
+            # legacy plain password -> upgrade to hash
+            conn.execute("UPDATE users SET password=? WHERE username='admin'",
+                         (generate_password_hash('admin123'),))
             conn.commit()
 
 @app.teardown_appcontext
@@ -79,13 +100,36 @@ def login_required(f):
     return decorated
 
 # ---------- Helpers ----------
+def _login_allowed(ip: str) -> bool:
+    rec = _login_fails.get(ip)
+    if not rec:
+        return True
+    fails, first = rec
+    if fails >= 5 and (time.time() - first) < 300:
+        return False
+    if (time.time() - first) >= 300:
+        _login_fails.pop(ip, None)
+        return True
+    return True
+
+def _login_fail(ip: str):
+    fails, first = _login_fails.get(ip, (0, time.time()))
+    if time.time() - first >= 300:
+        fails, first = 0, time.time()
+    _login_fails[ip] = (fails + 1, first)
+
+def _login_ok(ip: str):
+    _login_fails.pop(ip, None)
+
 def extract_text_from_upload(file_storage):
     if not file_storage or not file_storage.filename:
         return ""
-    fname = file_storage.filename
+    fname = secure_filename(file_storage.filename)
     ext = Path(fname).suffix.lower()
-    # save temp
-    tmp = os.path.join(app.config['UPLOAD_FOLDER'], fname)
+    if ext not in ALLOWED_EXTS:
+        raise ValueError(f"File type {ext or '?'} not allowed (use PDF/DOCX/TXT/MD)")
+    # save temp with random prefix to avoid collisions/traversal
+    tmp = os.path.join(app.config['UPLOAD_FOLDER'], f"{secrets.token_hex(4)}_{fname}")
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     file_storage.save(tmp)
     try:
@@ -94,10 +138,15 @@ def extract_text_from_upload(file_storage):
         elif ext == ".docx":
             return core.read_docx_file(tmp)
         else:
-            return Path(tmp).read_text(encoding="utf-8", errors="ignore")
+            data = Path(tmp).read_text(encoding="utf-8", errors="ignore")
+            if len(data) > 200_000:
+                raise ValueError("Text file too large (max ~200k chars)")
+            return data
     finally:
-        # keep file for reference maybe, but not needed
-        pass
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
 
 # ---------- Routes ----------
 @app.route("/")
@@ -115,10 +164,19 @@ def register():
         if not u or not p:
             flash("Username & password required")
             return redirect(url_for("register"))
+        if len(u) < 3 or len(u) > 32 or not u.replace("_","").replace("-","").isalnum():
+            flash("Username: 3-32 chars, letters/numbers/_/- only")
+            return redirect(url_for("register"))
+        if len(p) < 6:
+            flash("Password must be at least 6 characters")
+            return redirect(url_for("register"))
+        if e and ("@" not in e or "." not in e):
+            flash("Invalid email format")
+            return redirect(url_for("register"))
         try:
             with sqlite3.connect(DATABASE) as conn:
                 conn.execute("INSERT INTO users(username,password,email,created_at) VALUES(?,?,?,?)",
-                             (u,p,e, datetime.now().isoformat()))
+                             (u, generate_password_hash(p), e, datetime.now().isoformat()))
                 conn.commit()
             flash("Registered! Please login")
             return redirect(url_for("login"))
@@ -129,15 +187,37 @@ def register():
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
+        ip = request.remote_addr or "unknown"
+        if not _login_allowed(ip):
+            flash("Too many failed attempts — try again in 5 minutes")
+            return render_template("login.html")
         u = request.form.get("username","").strip()
         p = request.form.get("password","").strip()
         with sqlite3.connect(DATABASE) as conn:
             conn.row_factory = sqlite3.Row
-            row = conn.execute("SELECT * FROM users WHERE username=? AND password=?", (u,p)).fetchone()
+            row = conn.execute("SELECT * FROM users WHERE username=?", (u,)).fetchone()
+            ok = False
             if row:
+                stored = row['password']
+                try:
+                    ok = check_password_hash(stored, p)
+                except Exception:
+                    ok = False
+                # legacy plain-text migration
+                if not ok and stored == p:
+                    ok = True
+                    try:
+                        conn.execute("UPDATE users SET password=? WHERE id=?",
+                                     (generate_password_hash(p), row['id']))
+                        conn.commit()
+                    except Exception:
+                        pass
+            if ok:
+                _login_ok(ip)
                 session['user_id'] = row['id']
                 session['username'] = row['username']
                 return redirect(url_for('dashboard'))
+        _login_fail(ip)
         flash("Invalid credentials (try admin/admin123)")
     return render_template("login.html")
 
@@ -407,6 +487,7 @@ def builder():
         "skills": request.form.get("skills",""),
         "experience": request.form.get("experience",""),
         "projects": request.form.get("projects",""),
+        "achievements": request.form.get("achievements",""),
         "certs": request.form.get("certs",""),
     }
     cv_text = core.ai_build_cv(data)
